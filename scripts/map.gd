@@ -7,6 +7,7 @@ var points = []
 var map = []
 var neighbours = null
 var countries = []
+var sizes = []
 var width = 200
 var height = 200
 
@@ -17,6 +18,9 @@ var image
 
 var colorCount = 10
 
+var activeCountry
+
+var rightMousePressed = false
 var leftMousePressed = false
 
 func startSwapTerritory():
@@ -84,6 +88,12 @@ func startSwapTerritory():
 
 
 func expanseTerritory(attacker,enemy):
+	if (sizes[enemy] == 0):
+		print("captured")
+		return
+	if (neighbours[attacker][enemy] == 0):
+		print("no more links")
+		return
 	var pos
 	var target = null
 	#print(str(attacker)+" -" +str(enemy))
@@ -91,8 +101,6 @@ func expanseTerritory(attacker,enemy):
 #		print(item)
 	#print(countries[attacker].size())
 	var i = 0
-	if (countries[enemy].size() < 5):
-		return
 	while (target == null):
 #		i += 1
 #		if (i > 1000):
@@ -113,56 +121,75 @@ func expanseTerritory(attacker,enemy):
 
 	var baseCountry = map[target.x][target.y]
 	var anotherCountry
-	if (target.x > 0):
-		anotherCountry = map[target.x-1][target.y]
-		if (anotherCountry != baseCountry):
-			neighbours[baseCountry][anotherCountry] -= 1
-			neighbours[anotherCountry][baseCountry] -= 1
-	if (target.y > 0):
-		anotherCountry = map[target.x][target.y-1]
-		if (anotherCountry != baseCountry):
-			neighbours[baseCountry][anotherCountry] -= 1
-			neighbours[anotherCountry][baseCountry] -= 1
-	if (target.x < width-1):
-		anotherCountry = map[target.x+1][target.y]
-		if (anotherCountry != baseCountry):
-			neighbours[baseCountry][anotherCountry] -= 1
-			neighbours[anotherCountry][baseCountry] -= 1
-	if (target.y < height-1):
-		anotherCountry = map[target.x][target.y+1]
-		if (anotherCountry != baseCountry):
-			neighbours[baseCountry][anotherCountry] -= 1
-			neighbours[anotherCountry][baseCountry] -= 1
-			
+	
+	for i in range(-1,2):
+		for j in range(-1,2):
+			if (abs(i)+abs(j) != 1):
+				continue
+			var x = target.x + i 
+			var y = target.y + j
+			if (x >= 0 && y >= 0 && x < width && y<height):
+				anotherCountry = map[x][y]
+				if (anotherCountry != baseCountry):
+					neighbours[baseCountry][anotherCountry] -= 1
+					neighbours[anotherCountry][baseCountry] -= 1
+				else:
+					countries[baseCountry].append(Vector2(x,y))
+#					for i2 in range(-1,2):
+#						for j2 in range(-1,2):
+#							if (abs(i2)+abs(j2) != 1):
+#								continue
+#							var x2 = x + i2 
+#							var y2 = y + j2
+#							if (x2 >= 0 && y2 >= 0 && x2 < width && y2<height):
+#								if (map[x2][y2] != map[x][y]):
+	
+
 	map[target.x][target.y] = attacker
 	
 	baseCountry = map[target.x][target.y]
-	anotherCountry
-	if (target.x > 0):
-		anotherCountry = map[target.x-1][target.y]
-		if (anotherCountry != baseCountry):
-			neighbours[baseCountry][anotherCountry] += 1
-			neighbours[anotherCountry][baseCountry] += 1
-	if (target.y > 0):
-		anotherCountry = map[target.x][target.y-1]
-		if (anotherCountry != baseCountry):
-			neighbours[baseCountry][anotherCountry] += 1
-			neighbours[anotherCountry][baseCountry] += 1
-	if (target.x < width-1):
-		anotherCountry = map[target.x+1][target.y]
-		if (anotherCountry != baseCountry):
-			neighbours[baseCountry][anotherCountry] += 1
-			neighbours[anotherCountry][baseCountry] += 1
-	if (target.y < height-1):
-		anotherCountry = map[target.x][target.y+1]
-		if (anotherCountry != baseCountry):
-			neighbours[baseCountry][anotherCountry] += 1
-			neighbours[anotherCountry][baseCountry] += 1
-			
+	for i in range(-1,2):
+		for j in range(-1,2):
+			if (abs(i)+abs(j) != 1):
+				continue
+			var x = target.x + i 
+			var y = target.y + j
+			if (x >= 0 && y >= 0 && x < width && y<height):
+				anotherCountry = map[x][y]
+				if (anotherCountry != baseCountry):
+					neighbours[baseCountry][anotherCountry] += 1
+					neighbours[anotherCountry][baseCountry] += 1
+				else:
+					var flag = false
+					for i2 in range(-1,2):
+						if (flag):
+							break
+						for j2 in range(-1,2):
+							if (abs(i2)+abs(j2) != 1):
+								continue
+							var x2 = x + i2 
+							var y2 = y + j2
+							if (x2 >= 0 && y2 >= 0 && x2 < width && y2<height):
+								if (map[x2][y2] != map[x][y]):
+									flag = true
+									break
+					if (!flag):
+						var v = Vector2(x,y)
+						while (countries[baseCountry].find(v)>=0):
+							countries[baseCountry].erase(v)
 	
 	countries[attacker].append(target)
-	countries[enemy].erase(target)
+	sizes[attacker] += 1
+	while (countries[enemy].find(target)>=0):
+		countries[enemy].erase(target)
+	sizes[enemy] -= 1
 	image.put_pixel(target.x,target.y,colors[attacker])
+	#for i in range(width):
+	#	for j in range(height):
+	#		image.put_pixel(i,j,colors[map[i][j]])
+	#for item in countries[attacker]:
+	#	image.put_pixel(item.x,item.y,Color(1,0,0))
+		
 
 func updateMap():
 	imageTexture.set_data(image)
@@ -183,6 +210,8 @@ func calcNeighbours():
 				var v2 = map[i][j]
 				neighbours[v1][v2] += 1
 				neighbours[v2][v1] += 1
+				countries[v1].append(Vector2(i-1,j))
+				countries[v2].append(Vector2(i,j))
 	#		if (map[i+1][j] != map[i][j]):
 	#			var v1 = map[i+1][j]
 	#			var v2 = map[i][j]
@@ -193,6 +222,8 @@ func calcNeighbours():
 				var v2 = map[i][j]
 				neighbours[v1][v2] += 1
 				neighbours[v2][v1] += 1
+				countries[v2].append(Vector2(i,j))
+				countries[v1].append(Vector2(i,j-1))
 	#		if (map[i][j+1] != map[i][j]):
 	#			var v1 = map[i][j+1]
 	#			var v2 = map[i][j]
@@ -204,9 +235,11 @@ func _ready():
 	randomize()
 	colors = []
 	countries = []
+	sizes = []
 	for i in range(colorCount):
 		colors.append(Color(randf(),randf(),randf()))
 		countries.append([])
+		sizes.append(0)
 	var maxLength = (width*height)*(width*height)
 	imageTexture = ImageTexture.new()
 	imageTexture.load("res://map.png")
@@ -229,11 +262,11 @@ func _ready():
 					bestColor = n
 			image.put_pixel(i,j,colors[bestColor])
 			map[i].append(bestColor)
-			countries[bestColor].append(Vector2(i,j))
+			sizes[bestColor] += 1
 #	for n in range(colors.size()):
 #		image.put_pixel(points[n].x,points[n].y,Color(0,0,0))
 	calcNeighbours()
-	startSwapTerritory()
+#	startSwapTerritory()
 	updateMap()
 	set_process(true)
 
@@ -248,9 +281,16 @@ func _process(delta):
 			if (mousePos.x>=0 && mousePos.x<width && mousePos.y>=0 && mousePos.y<height):
 				var cursorCountry = map[mousePos.x][mousePos.y]
 				print(cursorCountry)
-				if (neighbours[1][cursorCountry]>0):
-					for i in range(50):
-						expanseTerritory(1,cursorCountry)
+				if (neighbours[activeCountry][cursorCountry]>0):
+					for i in range(150):
+						expanseTerritory(activeCountry,cursorCountry)
 					updateMap()
 #					calcNeighbours()
 		leftMousePressed = false
+	if (Input.is_mouse_button_pressed(2)):
+		rightMousePressed = true
+	else:
+		if (rightMousePressed):
+			#OnRightClick
+			activeCountry = map[mousePos.x][mousePos.y]
+		rightMousePressed = false
