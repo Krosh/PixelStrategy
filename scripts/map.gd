@@ -1,14 +1,16 @@
 extends Sprite
 
+var borderPixels = [] #[WHO][WITH][X][Y]
+
 var colors = [Color(1,0,0),Color(0,1,0),Color(0,0,1),Color(0,1,1),Color(1,0,1),Color(1,1,0)]
 var points = []
 var map = []
-var neighbours = []
+var neighbours = null
 var countries = []
 var width = 200
 var height = 200
 
-var numStartSwap = 100
+var numStartSwap = 10
 
 var imageTexture
 var image
@@ -107,7 +109,57 @@ func expanseTerritory(attacker,enemy):
 		if (pos.y < height-1 && map[pos.x][pos.y+1] == enemy):
 			target = Vector2(pos.x,pos.y+1)
 	#print(target)
+	#   RECALC NEIGHBOUR COUNT
+
+	var baseCountry = map[target.x][target.y]
+	var anotherCountry
+	if (target.x > 0):
+		anotherCountry = map[target.x-1][target.y]
+		if (anotherCountry != baseCountry):
+			neighbours[baseCountry][anotherCountry] -= 1
+			neighbours[anotherCountry][baseCountry] -= 1
+	if (target.y > 0):
+		anotherCountry = map[target.x][target.y-1]
+		if (anotherCountry != baseCountry):
+			neighbours[baseCountry][anotherCountry] -= 1
+			neighbours[anotherCountry][baseCountry] -= 1
+	if (target.x < width-1):
+		anotherCountry = map[target.x+1][target.y]
+		if (anotherCountry != baseCountry):
+			neighbours[baseCountry][anotherCountry] -= 1
+			neighbours[anotherCountry][baseCountry] -= 1
+	if (target.y < height-1):
+		anotherCountry = map[target.x][target.y+1]
+		if (anotherCountry != baseCountry):
+			neighbours[baseCountry][anotherCountry] -= 1
+			neighbours[anotherCountry][baseCountry] -= 1
+			
 	map[target.x][target.y] = attacker
+	
+	baseCountry = map[target.x][target.y]
+	anotherCountry
+	if (target.x > 0):
+		anotherCountry = map[target.x-1][target.y]
+		if (anotherCountry != baseCountry):
+			neighbours[baseCountry][anotherCountry] += 1
+			neighbours[anotherCountry][baseCountry] += 1
+	if (target.y > 0):
+		anotherCountry = map[target.x][target.y-1]
+		if (anotherCountry != baseCountry):
+			neighbours[baseCountry][anotherCountry] += 1
+			neighbours[anotherCountry][baseCountry] += 1
+	if (target.x < width-1):
+		anotherCountry = map[target.x+1][target.y]
+		if (anotherCountry != baseCountry):
+			neighbours[baseCountry][anotherCountry] += 1
+			neighbours[anotherCountry][baseCountry] += 1
+	if (target.y < height-1):
+		anotherCountry = map[target.x][target.y+1]
+		if (anotherCountry != baseCountry):
+			neighbours[baseCountry][anotherCountry] += 1
+			neighbours[anotherCountry][baseCountry] += 1
+			
+	
 	countries[attacker].append(target)
 	countries[enemy].erase(target)
 	image.put_pixel(target.x,target.y,colors[attacker])
@@ -117,35 +169,35 @@ func updateMap():
 	self.set_texture(imageTexture)
 
 func calcNeighbours():
-	neighbours = []
-	for i in range(colorCount):
-		neighbours.append([])
-		for j in range(colorCount):
-			neighbours[i].append(false)
+	if (neighbours == null):
+		neighbours = []
+		for i in range(colorCount):
+			neighbours.append([])
+			for j in range(colorCount):
+				neighbours[i].append(0)
 	for i in range(1,width-1):
 		for j in range(1,height-1):
 			#TODO ::: TEST ON BORDERS
 			if (map[i-1][j] != map[i][j]):
 				var v1 = map[i-1][j]
 				var v2 = map[i][j]
-				neighbours[v1][v2] = true
-				neighbours[v2][v1] = true
-			if (map[i+1][j] != map[i][j]):
-				var v1 = map[i+1][j]
-				var v2 = map[i][j]
-				neighbours[v1][v2] = true
-				neighbours[v2][v1] = true
+				neighbours[v1][v2] += 1
+				neighbours[v2][v1] += 1
+	#		if (map[i+1][j] != map[i][j]):
+	#			var v1 = map[i+1][j]
+	#			var v2 = map[i][j]
+	#			neighbours[v1][v2] = true
+	#			neighbours[v2][v1] = true
 			if (map[i][j-1] != map[i][j]):
 				var v1 = map[i][j-1]
 				var v2 = map[i][j]
-				neighbours[v1][v2] = true
-				neighbours[v2][v1] = true
-			if (map[i][j+1] != map[i][j]):
-				var v1 = map[i][j+1]
-				var v2 = map[i][j]
-				neighbours[v1][v2] = true
-				neighbours[v2][v1] = true
-	startSwapTerritory()
+				neighbours[v1][v2] += 1
+				neighbours[v2][v1] += 1
+	#		if (map[i][j+1] != map[i][j]):
+	#			var v1 = map[i][j+1]
+	#			var v2 = map[i][j]
+	#			neighbours[v1][v2] = true
+	#			neighbours[v2][v1] = true
 	
 
 func _ready():
@@ -181,6 +233,7 @@ func _ready():
 #	for n in range(colors.size()):
 #		image.put_pixel(points[n].x,points[n].y,Color(0,0,0))
 	calcNeighbours()
+	startSwapTerritory()
 	updateMap()
 	set_process(true)
 
@@ -193,8 +246,11 @@ func _process(delta):
 		if (leftMousePressed):
 			#OnClick
 			if (mousePos.x>=0 && mousePos.x<width && mousePos.y>=0 && mousePos.y<height):
-				print(map[mousePos.x][mousePos.y])
-				image.put_pixel(mousePos.x,mousePos.y,Color(0,0,0))
-				imageTexture.set_data(image)
-				self.set_texture(imageTexture)
+				var cursorCountry = map[mousePos.x][mousePos.y]
+				print(cursorCountry)
+				if (neighbours[1][cursorCountry]>0):
+					for i in range(50):
+						expanseTerritory(1,cursorCountry)
+					updateMap()
+#					calcNeighbours()
 		leftMousePressed = false
