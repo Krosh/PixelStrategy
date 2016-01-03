@@ -30,6 +30,24 @@ func startSwap():
 					expanseTerritory(j,i)
 				
 
+func startCountryNames():
+	var theme = Theme.new()
+	theme.set_color("font_color","Label",Color(0.0,0.0,0.0))
+	for i in range(width):
+		for j in range(height):
+			countries[map[i][j]].center += Vector2(i,j)
+	for i in range(colorCount):
+		countries[i].center /= countries[i].size
+		var label = Label.new()
+		label.set_theme(theme)
+		label.set_text(countries[i].name)
+		label.set_align(HALIGN_CENTER)
+		label.set_size(Vector2(300,100))
+		label.set_pos(countries[i].center-Vector2(150,0))
+		get_node("countryNames").add_child(label)
+	get_node("countryNames").show()
+
+
 func expanseTerritory(attacker,enemy):
 	if (countries[enemy].size == 0):
 		print("captured")
@@ -150,10 +168,10 @@ func calcNeighbours():
 		neighbours.append([])
 		for j in range(colorCount):
 			neighbours[i].append(0)
-	for i in range(1,width-1):
+	for i in range(1,width):
 		if (i % 50 == 0):
 			print(i)
-		for j in range(1,height-1):
+		for j in range(1,height):
 			#TODO ::: TEST ON BORDERS
 			if (map[i-1][j] != map[i][j]):
 				var v1 = map[i-1][j]
@@ -245,6 +263,7 @@ func start():
 	calcNeighbours()
 	print("start swap")
 	startSwap()
+	startCountryNames()
 	updateMap()
 
 
