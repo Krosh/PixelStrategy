@@ -89,9 +89,11 @@ func buyFood():
 	updateGui()
 
 func attackInThread(obj):
-	for i in range(1500):
+	for i in range(150):
 		map.expanseTerritory(activeCountry,obj)
 	map.updateMap()
+	map.countries[activeCountry].updateLabel()
+	map.countries[obj].updateLabel()
 	call_deferred("successThread")
 	return true
 

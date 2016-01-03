@@ -10,6 +10,7 @@ var size = 0
 # DRAW VARS
 var center = Vector2(0,0)
 var name = "COUNTRY"
+var label = null
 
 func getAgroCoef():
 	return 2.0
@@ -52,3 +53,9 @@ func startGame():
 func nextTurn():
 	food += ceil(grow * getAgroCoef())
 	grow = 0
+
+func updateLabel():
+	if (label != null):
+		if (size == 0):
+			label.hide()
+		label.set_pos(center-Vector2(150,0))

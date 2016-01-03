@@ -6,8 +6,8 @@ var map = []
 var neighbours = null
 var borders = []
 var countries = []
-var width = 400
-var height = 400
+var width = 200
+var height = 200
 
 var BorderColor = Color(0,1,0)
 
@@ -43,8 +43,9 @@ func startCountryNames():
 		label.set_text(countries[i].name)
 		label.set_align(HALIGN_CENTER)
 		label.set_size(Vector2(300,100))
-		label.set_pos(countries[i].center-Vector2(150,0))
 		get_node("countryNames").add_child(label)
+		countries[i].label = label
+		countries[i].updateLabel()
 	get_node("countryNames").show()
 
 
@@ -146,10 +147,17 @@ func expanseTerritory(attacker,enemy):
 						image.put_pixel(x,y,colors[baseCountry])
 	
 	borders[attacker].append(target)
+	countries[attacker].center *= countries[attacker].size
+	countries[attacker].center += target
 	countries[attacker].size += 1
+	countries[attacker].center /= countries[attacker].size
 	while (borders[enemy].find(target)>=0):
 		borders[enemy].erase(target)
+	countries[enemy].center *= countries[enemy].size
+	countries[enemy].center -= target
 	countries[enemy].size -= 1
+	if (countries[enemy].size > 0):
+		countries[enemy].center /= countries[enemy].size
 #	image.put_pixel(target.x,target.y,colors[attacker])
 	#for i in range(width):
 	#	for j in range(height):
