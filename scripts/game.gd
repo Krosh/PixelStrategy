@@ -9,22 +9,25 @@ var activeCountry
 var rightMousePressed = false
 var leftMousePressed = false
 
+var gui
+
 var thread
 var threadWorked = false
 
 func updateGui():
-	get_node("gui/sizeLabel/value").set_text(str(map.countries[activeCountry].size))
-	get_node("gui/growLabel/value").set_text(str(map.countries[activeCountry].grow))
-	get_node("gui/foodLabel/value").set_text(str(map.countries[activeCountry].food))
-	get_node("gui/moneyLabel/value").set_text(str(map.countries[activeCountry].money))
-	get_node("gui/peonsLabel/value").set_text(str(map.countries[activeCountry].peons))
-	get_node("gui/foodLabel/sellSlider").set_max(map.countries[activeCountry].food)
-	get_node("gui/foodLabel/buySlider").set_max(map.countries[activeCountry].getMaxFoodBuyCount())
-	get_node("gui/growLabel/slider").set_max(map.countries[activeCountry].getMaxGrow())
+	gui.get_node("sizeLabel/value").set_text(str(map.countries[activeCountry].size))
+	gui.get_node("growLabel/value").set_text(str(map.countries[activeCountry].grow))
+	gui.get_node("foodLabel/value").set_text(str(map.countries[activeCountry].food))
+	gui.get_node("moneyLabel/value").set_text(str(map.countries[activeCountry].money))
+	gui.get_node("peonsLabel/value").set_text(str(map.countries[activeCountry].peons))
+	gui.get_node("foodLabel/sellSlider").set_max(map.countries[activeCountry].food)
+	gui.get_node("foodLabel/buySlider").set_max(map.countries[activeCountry].getMaxFoodBuyCount())
+	gui.get_node("growLabel/slider").set_max(map.countries[activeCountry].getMaxGrow())
 	_on_slider_value_changed(0)
 
 func _ready():
 	thread = Thread.new()
+	gui = get_node("gui")
 	
 
 
@@ -64,28 +67,28 @@ func nextTurn():
 
 
 func sellFood():
-	map.countries[activeCountry].sellFood(get_node("gui/foodLabel/sellSlider").get_value())
+	map.countries[activeCountry].sellFood(gui.get_node("foodLabel/sellSlider").get_value())
 	updateGui()
 
 
 func growFood():
-	map.countries[activeCountry].growFood(get_node("gui/growLabel/slider").get_value())
+	map.countries[activeCountry].growFood(gui.get_node("growLabel/slider").get_value())
 	updateGui()
 
 
 
 func _on_slider_value_changed( value ):
-	var sellFoodVal = get_node("gui/foodLabel/sellSlider").get_value()
+	var sellFoodVal = gui.get_node("foodLabel/sellSlider").get_value()
 	var sellFoodCost = floor(sellFoodVal*map.countries[activeCountry].getFoodCost())
-	var buyFoodVal = get_node("gui/foodLabel/buySlider").get_value()
+	var buyFoodVal = gui.get_node("foodLabel/buySlider").get_value()
 	var buyFoodCost = floor(buyFoodVal*map.countries[activeCountry].getBuyFoodCost())
-	get_node("gui/foodLabel/sellSlider/value").set_text(str(sellFoodVal)+" ("+str(sellFoodCost)+"$)")
-	get_node("gui/foodLabel/buySlider/value").set_text(str(buyFoodVal)+" ("+str(buyFoodCost)+"$)")
-	get_node("gui/growLabel/slider/value").set_text(str(get_node("gui/growLabel/slider").get_value()))
+	gui.get_node("foodLabel/sellSlider/value").set_text(str(sellFoodVal)+" ("+str(sellFoodCost)+"$)")
+	gui.get_node("foodLabel/buySlider/value").set_text(str(buyFoodVal)+" ("+str(buyFoodCost)+"$)")
+	gui.get_node("growLabel/slider/value").set_text(str(gui.get_node("growLabel/slider").get_value()))
 
 
 func buyFood():
-	map.countries[activeCountry].buyFood(get_node("gui/foodLabel/buySlider").get_value())
+	map.countries[activeCountry].buyFood(gui.get_node("foodLabel/buySlider").get_value())
 	updateGui()
 
 func attackInThread(obj):
@@ -116,3 +119,6 @@ func generate():
 	if (thread.is_active()):
 		return
 	thread.start(self,"generateInThread")
+
+func showDialog():
+	get_node("Popup").show_modal(true)

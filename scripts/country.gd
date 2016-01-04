@@ -9,7 +9,7 @@ var grow = 0
 var size = 0
 # DRAW VARS
 var center = Vector2(0,0)
-var name = "COUNTRY"
+var name = "Country"
 var label = null
 
 func getAgroCoef():

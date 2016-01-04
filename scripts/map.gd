@@ -6,8 +6,8 @@ var map = []
 var neighbours = null
 var borders = []
 var countries = []
-var width = 200
-var height = 200
+var width = 400
+var height = 400
 
 var BorderColor = Color(0,1,0)
 
@@ -31,8 +31,10 @@ func startSwap():
 				
 
 func startCountryNames():
-	var theme = Theme.new()
-	theme.set_color("font_color","Label",Color(0.0,0.0,0.0))
+	var theme = preload("res://guiTheme.thm")
+	var font = Font.new()
+	font.create_from_fnt("res://font.fnt")
+	theme.set_color("font_color","Label",Color(0.2773,0.2109,0.1719,1))
 	for i in range(width):
 		for j in range(height):
 			countries[map[i][j]].center += Vector2(i,j)
