@@ -22,9 +22,9 @@ func updateGui():
 	gui.get_node("peonsLabel/value").set_text(str(map.countries[activeCountry].peons))
 	gui.get_node("foodLabel/sellSlider").set_max(map.countries[activeCountry].food)
 	gui.get_node("foodLabel/buySlider").set_max(map.countries[activeCountry].getMaxFoodBuyCount())
-	gui.get_node("warriorsLabel/value").set_text(str(map.countries[activeCountry].warriors))
-	gui.get_node("warriorsLabel/sellSlider").set_max(map.countries[activeCountry].warriors)
-	gui.get_node("warriorsLabel/buySlider").set_max(map.countries[activeCountry].getMaxWarriorBuyCount())
+	gui.get_node("scientistsLabel/value").set_text(str(map.countries[activeCountry].scientists))
+	gui.get_node("scientistsLabel/sellSlider").set_max(map.countries[activeCountry].scientists)
+	gui.get_node("scientistsLabel/buySlider").set_max(map.countries[activeCountry].getMaxScientistBuyCount())
 	gui.get_node("growLabel/slider").set_max(map.countries[activeCountry].getMaxGrow())
 	_on_slider_value_changed(0)
 
@@ -81,12 +81,12 @@ func growFood():
 	map.countries[activeCountry].growFood(gui.get_node("growLabel/slider").get_value())
 	updateGui()
 
-func sellWarriors():
-	map.countries[activeCountry].sellWarriors(gui.get_node("warriorsLabel/sellSlider").get_value())
+func sellScientists():
+	map.countries[activeCountry].sellScientists(gui.get_node("scientistsLabel/sellSlider").get_value())
 	updateGui()
 
-func buyWarriors():
-	map.countries[activeCountry].buyWarriors(gui.get_node("warriorsLabel/buySlider").get_value())
+func buyScientists():
+	map.countries[activeCountry].buyScientists(gui.get_node("scientistsLabel/buySlider").get_value())
 	updateGui()
 
 
@@ -101,12 +101,12 @@ func _on_slider_value_changed( value ):
 	gui.get_node("foodLabel/sellSlider/value").set_text(str(sellFoodVal)+" ("+str(sellFoodCost)+"$)")
 	gui.get_node("foodLabel/buySlider/value").set_text(str(buyFoodVal)+" ("+str(buyFoodCost)+"$)")
 	#### WARRIOR SLIDER
-	var sellWarriorVal = gui.get_node("warriorsLabel/sellSlider").get_value()
-	var sellWarriorCost = floor(sellWarriorVal*map.countries[activeCountry].getSellWarriorCost())
-	var buyWarriorVal = gui.get_node("warriorsLabel/buySlider").get_value()
-	var buyWarriorCost = floor(buyWarriorVal*map.countries[activeCountry].getBuyWarriorCost())
-	gui.get_node("warriorsLabel/sellSlider/value").set_text(str(sellWarriorVal)+" ("+str(sellWarriorCost)+"$)")
-	gui.get_node("warriorsLabel/buySlider/value").set_text(str(buyWarriorVal)+" ("+str(buyWarriorCost)+"$)")
+	var sellScientistVal = gui.get_node("scientistsLabel/sellSlider").get_value()
+	var sellScientistCost = floor(sellScientistVal*map.countries[activeCountry].getSellScientistCost())
+	var buyScientistVal = gui.get_node("scientistsLabel/buySlider").get_value()
+	var buyScientistCost = floor(buyScientistVal*map.countries[activeCountry].getBuyScientistCost())
+	gui.get_node("scientistsLabel/sellSlider/value").set_text(str(sellScientistVal)+" ("+str(sellScientistCost)+"$)")
+	gui.get_node("scientistsLabel/buySlider/value").set_text(str(buyScientistVal)+" ("+str(buyScientistCost)+"$)")
 
 
 

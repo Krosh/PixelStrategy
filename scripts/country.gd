@@ -1,7 +1,6 @@
 # PEOPLES
 var peons = 0
-var warriors = 0
-var scientist = 0
+var scientists = 0
 # RESOURCES
 var money = 0
 var food = 0
@@ -27,14 +26,17 @@ func getMaxGrow():
 func getMaxFoodBuyCount():
 	return floor(money/getBuyFoodCost())
 
-func getBuyWarriorCost():
+func getBuyScientistCost():
 	return 100
 
-func getSellWarriorCost():
-	return getBuyWarriorCost()/2
+func getSellScientistCost():
+	return getBuyScientistCost()/2
 
-func getMaxWarriorBuyCount():
-	return floor(money/getBuyWarriorCost())
+func getMaxScientistBuyCount():
+	return floor(money/getBuyScientistCost())
+
+func getScientistFeedValue():
+	return 1.0
 
 func sellFood(value):
 	var v = min(value,food)
@@ -46,16 +48,24 @@ func buyFood(value):
 	food += v
 	money -= floor(v*getBuyFoodCost())
 
-func sellWarriors(value):
-	var v = min(value,warriors)
-	warriors -= v
-	money += floor(v * getSellWarriorCost())
+func sellScientists(value):
+	var v = min(value,scientists)
+	scientists -= v
+	money += floor(v * getSellScientistCost())
 
-func buyWarriors(value):
-	var v = min(value,getMaxWarriorBuyCount())
-	warriors += v
-	money -= floor(v*getBuyWarriorCost())
+func buyScientists(value):
+	var v = min(value,getMaxScientistBuyCount())
+	scientists += v
+	money -= floor(v*getBuyScientistCost())
 
+func feedScientists():
+	var val = min(scientists,floor(food/getScientistFeedValue()))
+	if (val < scientists):
+		# NO MORE FOOD
+		pass
+	scientists = val
+	food -= floor(getScientistFeedValue()*val)
+	
 func growFood(value):
 	var v = min(value,food)
 	food -= v
@@ -69,6 +79,7 @@ func startGame():
 func nextTurn():
 	food += ceil(grow * getAgroCoef())
 	grow = 0
+	feedScientists()
 
 func updateLabel():
 	if (label != null):
