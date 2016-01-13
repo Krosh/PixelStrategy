@@ -59,6 +59,10 @@ func buyFood(value):
 func sellScientists(value):
 	var v = min(value,scientists)
 	scientists -= v
+	var i = scientists
+	for item in researchs:
+		item.scientistsCount = min(i,item.scientistsCount)
+		i -= item.scientistsCount
 	peons += v
 	money += floor(v * getSellScientistCost())
 
