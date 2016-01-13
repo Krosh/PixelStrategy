@@ -17,7 +17,7 @@ var CountryClass = preload("res://scripts/country.gd")
 var imageTexture
 var image
 
-var colorCount = 20
+var colorCount = 10
 var numStartSwap = 20
 
 func startSwap():

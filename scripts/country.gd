@@ -10,6 +10,8 @@ var size = 0
 var center = Vector2(0,0)
 var name = "Country"
 var label = null
+# RESEARCH
+var researchs = []
 
 func getAgroCoef():
 	return 2.0
@@ -34,6 +36,12 @@ func getSellScientistCost():
 
 func getMaxScientistBuyCount():
 	return min(floor(money/getBuyScientistCost()),peons)
+
+func getFreeScientists():
+	var total = scientists
+	for item in researchs:
+		total -= item.scientistsCount
+	return total
 
 func getScientistFeedValue():
 	return 1.0
@@ -67,22 +75,34 @@ func feedScientists():
 		pass
 	scientists = val
 	food -= floor(getScientistFeedValue()*val)
-	
+
 func growFood(value):
 	var v = min(value,food)
 	food -= v
 	grow += v
+
+
+func startResearchs():
+	var researchClass = preload("res://scripts/research.gd")
+	var researchCount = 4
+	researchs = []
+	for i in range(researchCount):
+		researchs.append(researchClass.new())
+		researchs[i].parentCountry = self
 
 func startGame():
 	food = 200
 	peons = 150
 	scientists = 100
 	money = 100
+	startResearchs()
 
 func nextTurn():
 	food += ceil(grow * getAgroCoef())
 	grow = 0
 	feedScientists()
+	for item in researchs:
+		item.nextTurn()
 
 func updateLabel():
 	if (label != null):

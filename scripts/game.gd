@@ -30,7 +30,20 @@ func updateEconomicsGui():
 	_on_slider_value_changed(0)
 
 func updateScientistsGui():
-	pass
+	for i in range(map.countries[activeCountry].researchs.size()):
+		var research = map.countries[activeCountry].researchs[i]
+		var researchNode = scienceGui.get_node("research"+str(i+1))
+		researchNode.get_node("progress").set_max(research.endValue)
+		researchNode.get_node("progress").set_value(research.curValue)
+		researchNode.get_node("levelValue").set_text("Level "+str(research.level))
+		researchNode.get_node("stateValue").set_text(str(research.curValue) + "/"+ str(research.endValue))
+		if (research.scientistsCount > 0):
+			researchNode.get_node("needTurnValue").show()
+			researchNode.get_node("needTurnValue").set_text("Need "+str(research.getNeedTurn())+" turns")
+		else:
+			researchNode.get_node("needTurnValue").hide()
+		researchNode.get_node("scientistsCount").set_value(research.scientistsCount)
+	scienceGui.get_node("freeScientistsLabel/value").set_text(str(map.countries[activeCountry].getFreeScientists()))
 
 func updateGui():
 	updateEconomicsGui()
@@ -159,3 +172,25 @@ func changeActiveMenu( button ):
 		get_node("gui").show()
 	elif (button == 1):
 		get_node("science").show()
+
+
+func _on_minButton_pressed(arg):
+	var scientistsCount = scienceGui.get_node("research"+str(arg)+"/scientistsCount")
+	scientistsCount.set_value(0)
+
+
+func _on_maxButton_pressed(arg):
+	var scientistsCount = scienceGui.get_node("research"+str(arg)+"/scientistsCount")
+	scientistsCount.set_value(map.countries[activeCountry].researchs[arg-1].getMaxValue())
+
+
+func _on_yearButton_pressed(arg):
+	var scientistsCount = scienceGui.get_node("research"+str(arg)+"/scientistsCount")
+	scientistsCount.set_value(map.countries[activeCountry].researchs[arg-1].getOneYearValue())
+
+
+func _on_scientistsCount_value_changed( value, arg ):
+	if (map.countries[activeCountry].researchs[arg-1].scientistsCount == value):
+		return
+	map.countries[activeCountry].researchs[arg-1].scientistsCount = value
+	updateScientistsGui()
