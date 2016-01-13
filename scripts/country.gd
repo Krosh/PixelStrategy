@@ -33,7 +33,7 @@ func getSellScientistCost():
 	return getBuyScientistCost()/2
 
 func getMaxScientistBuyCount():
-	return floor(money/getBuyScientistCost())
+	return min(floor(money/getBuyScientistCost()),peons)
 
 func getScientistFeedValue():
 	return 1.0
@@ -51,11 +51,13 @@ func buyFood(value):
 func sellScientists(value):
 	var v = min(value,scientists)
 	scientists -= v
+	peons += v
 	money += floor(v * getSellScientistCost())
 
 func buyScientists(value):
 	var v = min(value,getMaxScientistBuyCount())
 	scientists += v
+	peons -= v
 	money -= floor(v*getBuyScientistCost())
 
 func feedScientists():
@@ -74,6 +76,7 @@ func growFood(value):
 func startGame():
 	food = 200
 	peons = 150
+	scientists = 100
 	money = 100
 
 func nextTurn():

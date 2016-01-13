@@ -6,8 +6,8 @@ var map = []
 var neighbours = null
 var borders = []
 var countries = []
-var width = 400
-var height = 400
+var width = 200
+var height = 200
 
 var BorderColor = Color(0,1,0)
 

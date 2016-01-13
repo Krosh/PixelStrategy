@@ -9,28 +9,37 @@ var activeCountry
 var rightMousePressed = false
 var leftMousePressed = false
 
-var gui
+var economicGui
+var scienceGui
 
 var thread
 var threadWorked = false
 
-func updateGui():
-	gui.get_node("sizeLabel/value").set_text(str(map.countries[activeCountry].size))
-	gui.get_node("growLabel/value").set_text(str(map.countries[activeCountry].grow))
-	gui.get_node("foodLabel/value").set_text(str(map.countries[activeCountry].food))
-	gui.get_node("moneyLabel/value").set_text(str(map.countries[activeCountry].money))
-	gui.get_node("peonsLabel/value").set_text(str(map.countries[activeCountry].peons))
-	gui.get_node("foodLabel/sellSlider").set_max(map.countries[activeCountry].food)
-	gui.get_node("foodLabel/buySlider").set_max(map.countries[activeCountry].getMaxFoodBuyCount())
-	gui.get_node("scientistsLabel/value").set_text(str(map.countries[activeCountry].scientists))
-	gui.get_node("scientistsLabel/sellSlider").set_max(map.countries[activeCountry].scientists)
-	gui.get_node("scientistsLabel/buySlider").set_max(map.countries[activeCountry].getMaxScientistBuyCount())
-	gui.get_node("growLabel/slider").set_max(map.countries[activeCountry].getMaxGrow())
+func updateEconomicsGui():
+	economicGui.get_node("sizeLabel/value").set_text(str(map.countries[activeCountry].size))
+	economicGui.get_node("growLabel/value").set_text(str(map.countries[activeCountry].grow))
+	economicGui.get_node("foodLabel/value").set_text(str(map.countries[activeCountry].food))
+	economicGui.get_node("moneyLabel/value").set_text(str(map.countries[activeCountry].money))
+	economicGui.get_node("peonsLabel/value").set_text(str(map.countries[activeCountry].peons))
+	economicGui.get_node("foodLabel/sellSlider").set_max(map.countries[activeCountry].food)
+	economicGui.get_node("foodLabel/buySlider").set_max(map.countries[activeCountry].getMaxFoodBuyCount())
+	economicGui.get_node("scientistsLabel/value").set_text(str(map.countries[activeCountry].scientists))
+	economicGui.get_node("scientistsLabel/sellSlider").set_max(map.countries[activeCountry].scientists)
+	economicGui.get_node("scientistsLabel/buySlider").set_max(map.countries[activeCountry].getMaxScientistBuyCount())
+	economicGui.get_node("growLabel/slider").set_max(map.countries[activeCountry].getMaxGrow())
 	_on_slider_value_changed(0)
+
+func updateScientistsGui():
+	pass
+
+func updateGui():
+	updateEconomicsGui()
+	updateScientistsGui()
 
 func _ready():
 	thread = Thread.new()
-	gui = get_node("gui")
+	economicGui = get_node("gui")
+	scienceGui = get_node("science")
 	
 
 
@@ -70,43 +79,43 @@ func nextTurn():
 
 
 func sellFood():
-	map.countries[activeCountry].sellFood(gui.get_node("foodLabel/sellSlider").get_value())
+	map.countries[activeCountry].sellFood(economicGui.get_node("foodLabel/sellSlider").get_value())
 	updateGui()
 
 func buyFood():
-	map.countries[activeCountry].buyFood(gui.get_node("foodLabel/buySlider").get_value())
+	map.countries[activeCountry].buyFood(economicGui.get_node("foodLabel/buySlider").get_value())
 	updateGui()
 
 func growFood():
-	map.countries[activeCountry].growFood(gui.get_node("growLabel/slider").get_value())
+	map.countries[activeCountry].growFood(economicGui.get_node("growLabel/slider").get_value())
 	updateGui()
 
 func sellScientists():
-	map.countries[activeCountry].sellScientists(gui.get_node("scientistsLabel/sellSlider").get_value())
+	map.countries[activeCountry].sellScientists(economicGui.get_node("scientistsLabel/sellSlider").get_value())
 	updateGui()
 
 func buyScientists():
-	map.countries[activeCountry].buyScientists(gui.get_node("scientistsLabel/buySlider").get_value())
+	map.countries[activeCountry].buyScientists(economicGui.get_node("scientistsLabel/buySlider").get_value())
 	updateGui()
 
 
 func _on_slider_value_changed( value ):
 	
-	gui.get_node("growLabel/slider/value").set_text(str(gui.get_node("growLabel/slider").get_value()))
+	economicGui.get_node("growLabel/slider/value").set_text(str(economicGui.get_node("growLabel/slider").get_value()))
 	#### FOOD SLIDER
-	var sellFoodVal = gui.get_node("foodLabel/sellSlider").get_value()
+	var sellFoodVal = economicGui.get_node("foodLabel/sellSlider").get_value()
 	var sellFoodCost = floor(sellFoodVal*map.countries[activeCountry].getSellFoodCost())
-	var buyFoodVal = gui.get_node("foodLabel/buySlider").get_value()
+	var buyFoodVal = economicGui.get_node("foodLabel/buySlider").get_value()
 	var buyFoodCost = floor(buyFoodVal*map.countries[activeCountry].getBuyFoodCost())
-	gui.get_node("foodLabel/sellSlider/value").set_text(str(sellFoodVal)+" ("+str(sellFoodCost)+"$)")
-	gui.get_node("foodLabel/buySlider/value").set_text(str(buyFoodVal)+" ("+str(buyFoodCost)+"$)")
+	economicGui.get_node("foodLabel/sellSlider/value").set_text(str(sellFoodVal)+" ("+str(sellFoodCost)+"$)")
+	economicGui.get_node("foodLabel/buySlider/value").set_text(str(buyFoodVal)+" ("+str(buyFoodCost)+"$)")
 	#### WARRIOR SLIDER
-	var sellScientistVal = gui.get_node("scientistsLabel/sellSlider").get_value()
+	var sellScientistVal = economicGui.get_node("scientistsLabel/sellSlider").get_value()
 	var sellScientistCost = floor(sellScientistVal*map.countries[activeCountry].getSellScientistCost())
-	var buyScientistVal = gui.get_node("scientistsLabel/buySlider").get_value()
+	var buyScientistVal = economicGui.get_node("scientistsLabel/buySlider").get_value()
 	var buyScientistCost = floor(buyScientistVal*map.countries[activeCountry].getBuyScientistCost())
-	gui.get_node("scientistsLabel/sellSlider/value").set_text(str(sellScientistVal)+" ("+str(sellScientistCost)+"$)")
-	gui.get_node("scientistsLabel/buySlider/value").set_text(str(buyScientistVal)+" ("+str(buyScientistCost)+"$)")
+	economicGui.get_node("scientistsLabel/sellSlider/value").set_text(str(sellScientistVal)+" ("+str(sellScientistCost)+"$)")
+	economicGui.get_node("scientistsLabel/buySlider/value").set_text(str(buyScientistVal)+" ("+str(buyScientistCost)+"$)")
 
 
 
@@ -140,4 +149,13 @@ func generate():
 	thread.start(self,"generateInThread")
 
 func showDialog():
-	get_node("Popup").show_modal(true)
+	get_node("PopupPanel").popup_centered()
+
+
+func changeActiveMenu( button ):
+	get_node("gui").hide()
+	get_node("science").hide()
+	if (button == 0):
+		get_node("gui").show()
+	elif (button == 1):
+		get_node("science").show()
