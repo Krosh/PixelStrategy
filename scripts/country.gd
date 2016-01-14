@@ -78,6 +78,10 @@ func feedScientists():
 		# NO MORE FOOD
 		pass
 	scientists = val
+	var i = scientists
+	for item in researchs:
+		item.scientistsCount = min(i,item.scientistsCount)
+		i -= item.scientistsCount
 	food -= floor(getScientistFeedValue()*val)
 
 func growFood(value):

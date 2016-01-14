@@ -6,8 +6,8 @@ var map = []
 var neighbours = null
 var borders = []
 var countries = []
-var width = 200
-var height = 200
+var width = 400
+var height = 400
 
 var BorderColor = Color(0,1,0)
 
@@ -17,7 +17,10 @@ var CountryClass = preload("res://scripts/country.gd")
 var imageTexture
 var image
 
-var colorCount = 10
+var visionImage
+var visionTexture
+
+var colorCount = 20
 var numStartSwap = 20
 
 func startSwap():
@@ -52,6 +55,7 @@ func startCountryNames():
 
 
 func expanseTerritory(attacker,enemy):
+	var needRecalcVisionFlag = false
 	if (countries[enemy].size == 0):
 		print("captured")
 		return
@@ -126,6 +130,9 @@ func expanseTerritory(attacker,enemy):
 			if (x >= 0 && y >= 0 && x < width && y<height):
 				anotherCountry = map[x][y]
 				if (anotherCountry != baseCountry):
+					if (neighbours[baseCountry][anotherCountry] == 0):
+						# TODO:: NEED TO RECALC VISION | DONE
+						needRecalcVisionFlag = true
 					neighbours[baseCountry][anotherCountry] += 1
 					neighbours[anotherCountry][baseCountry] += 1
 				else:
@@ -166,11 +173,31 @@ func expanseTerritory(attacker,enemy):
 	#		image.put_pixel(i,j,colors[map[i][j]])
 	#for item in borders[attacker]:
 	#	image.put_pixel(item.x,item.y,Color(1,0,0))
-		
+	return needRecalcVisionFlag
 
 func updateMap():
 	imageTexture.set_data(image)
 	self.set_texture(imageTexture)
+
+func updateVision(activeCountry):
+	return
+	var color
+	for i in range(0,width):
+		for j in range(0,height):
+			if (activeCountry == map[i][j] || neighbours[map[i][j]][activeCountry]>0):
+				color = image.get_pixel(i,j)
+				color.b = 1;
+				image.put_pixel(i,j,color)
+			else:
+				color = image.get_pixel(i,j)
+				color.b = 0;
+				image.put_pixel(i,j,color)
+	for i in range(colorCount):
+		if (activeCountry == i || neighbours[i][activeCountry]>0):
+			countries[i].label.show()
+		else:
+			countries[i].label.hide()
+	
 
 func calcNeighbours():
 	neighbours = []
@@ -241,6 +268,10 @@ func start():
 	imageTexture.load("res://map.png")
 	#imageTexture = get_texture()
 	image = imageTexture.get_data()
+#	visionTexture = ImageTexture.new()
+#	visionTexture.set_lossy_storage_quality(1)
+#	visionTexture.load("res://visionTexture.png")
+#	visionImage = visionTexture.get_data()
 
 	print(image.get_width())
 	for i in range(colors.size()):
@@ -248,15 +279,19 @@ func start():
 		var y = randi() % height
 		points.append(Vector2(x,y))
 	
+	var curPos
+	var curLength = 0
+	var bestLength = maxLength
+	var bestColor = -1
 	for i in range(width):
 		if (i % 50 == 0):
 			print(i)
 		map.append([])
 		for j in range(height):
-			var curPos = Vector2(i,j)
-			var curLength = 0
-			var bestLength = maxLength
-			var bestColor = -1
+			curPos = Vector2(i,j)
+			curLength = 0
+			bestLength = maxLength
+			bestColor = -1
 			for n in range(colors.size()):
 				curLength = curPos.distance_squared_to(points[n])
 				if (curLength < bestLength || bestColor == -1):

@@ -59,6 +59,9 @@ func _ready():
 func selectCountry(idCountry):
 	activeCountry = idCountry
 	map.get_material().set_shader_param("myColor",map.colors[idCountry])
+	#   RECALC VISION
+	map.updateVision(idCountry)
+	map.updateMap()
 	updateGui()
 
 
@@ -133,8 +136,11 @@ func _on_slider_value_changed( value ):
 
 
 func attackInThread(obj):
+	var flag = false
 	for i in range(150):
-		map.expanseTerritory(activeCountry,obj)
+		flag = flag || map.expanseTerritory(activeCountry,obj)
+	if (flag):
+		map.updateVision(activeCountry)
 	map.updateMap()
 	map.countries[activeCountry].updateLabel()
 	map.countries[obj].updateLabel()
