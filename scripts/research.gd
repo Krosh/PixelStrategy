@@ -38,6 +38,9 @@ func readFromFile(file):
 	var mas
 	while (curString != "research" && curString != "end"):
 		mas = curString.split(":")
-		self[mas[0]] = mas[1]
+		if (mas[1].is_valid_integer()):
+			set(mas[0],int(mas[1]))
+		else:
+			set(mas[0],mas[1])
 		curString = file.get_line()
 		

@@ -210,8 +210,6 @@ func _on_saveButton_pressed():
 func _on_loadButton_pressed():
 	map = get_node("map")
 	map.loadGame("save")
-	for item in map.countries:
-		item.startGame()
 	activeCountry = 0
 	updateGui()
 	set_process(true)

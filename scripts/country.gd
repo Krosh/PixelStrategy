@@ -1,5 +1,4 @@
 extends Node
-
 # PEOPLES
 var peons = 0
 var scientists = 0
@@ -53,14 +52,16 @@ func getScientistFeedValue():
 	return 1.0
 
 func sellFood(value):
+	value = int(value)
 	var v = min(value,food)
 	food -= v
-	money += floor(v * getSellFoodCost())
+	money += int(floor(v * getSellFoodCost()))
 
 func buyFood(value):
+	value = int(value)
 	var v = min(value,getMaxFoodBuyCount())
 	food += v
-	money -= floor(v*getBuyFoodCost())
+	money -= int(floor(v*getBuyFoodCost()))
 
 func syncronizeScientistsOnResearch():
 	# THIS METHOD REMOVE EXCESS SCIENTISTS FROM RESEARCH
@@ -70,28 +71,31 @@ func syncronizeScientistsOnResearch():
 		i -= item.scientistsCount
 
 func sellScientists(value):
+	value = int(value)
 	var v = min(value,scientists)
 	scientists -= v
 	syncronizeScientistsOnResearch()
 	peons += v
-	money += floor(v * getSellScientistCost())
+	money += int(floor(v * getSellScientistCost()))
 
 func buyScientists(value):
+	value = int(value)
 	var v = min(value,getMaxScientistBuyCount())
 	scientists += v
 	peons -= v
-	money -= floor(v*getBuyScientistCost())
+	money -= int(floor(v*getBuyScientistCost()))
 
 func feedScientists():
-	var val = min(scientists,floor(food/getScientistFeedValue()))
+	var val = int(min(scientists,floor(food/getScientistFeedValue())))
 	if (val < scientists):
 		# NO MORE FOOD
 		pass
 	scientists = val
 	syncronizeScientistsOnResearch()
-	food -= floor(getScientistFeedValue()*val)
+	food -= int(floor(getScientistFeedValue()*val))
 
 func growFood(value):
+	value = int(value)
 	var v = min(value,food)
 	food -= v
 	grow += v
@@ -113,7 +117,7 @@ func startGame():
 	startResearchs()
 
 func nextTurn():
-	food += ceil(grow * getAgroCoef())
+	food += int(ceil(grow * getAgroCoef()))
 	grow = 0
 	feedScientists()
 	for item in researchs:
@@ -140,5 +144,11 @@ func readFromFile(file):
 	var mas
 	while (curString != "research" && curString != "end"):
 		mas = curString.split(":")
-		self[mas[0]] = mas[1]
+		if (mas[1].is_valid_integer()):
+			set(mas[0],int(mas[1]))
+		else:
+			set(mas[0],mas[1])
 		curString = file.get_line()
+	startResearchs()
+	for item in researchs:
+		item.readFromFile(file)

@@ -63,12 +63,13 @@ func loadGame(saveName):
 	var file = File.new()
 	file.open("res://saves/"+saveName+"_save.sv",file.READ)
 	# header and main information
-	file.get_8(colorCount)
+	file.get_8()
 	# every country
 	for item in countries:
 		item.readFromFile(file)
 	file.close()
-
+	for item in countries:
+		print(item)
 	visionTexture = ImageTexture.new()
 	visionTexture.set_lossy_storage_quality(1)
 	visionTexture.load("res://visionTexture.png")
@@ -86,7 +87,7 @@ func loadGame(saveName):
 			bestColor = round((image.get_pixel(i,j).g-0.2)/0.7*colorCount)
 			image.put_pixel(i,j,colors[bestColor])
 			map[i].append(bestColor)
-			countries[bestColor].size += 1
+		#	countries[bestColor].size += 1
 #			sizes[bestColor] += 1
 #	for n in range(colors.size()):
 #		image.put_pixel(points[n].x,points[n].y,Color(0,0,0))
