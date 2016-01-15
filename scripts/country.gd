@@ -1,6 +1,12 @@
+extends Node
+
 # PEOPLES
 var peons = 0
 var scientists = 0
+# WAR UNITS
+var infantry = 0
+var cavalry = 0
+var artillery = 0
 # RESOURCES
 var money = 0
 var food = 0
@@ -56,13 +62,17 @@ func buyFood(value):
 	food += v
 	money -= floor(v*getBuyFoodCost())
 
-func sellScientists(value):
-	var v = min(value,scientists)
-	scientists -= v
+func syncronizeScientistsOnResearch():
+	# THIS METHOD REMOVE EXCESS SCIENTISTS FROM RESEARCH
 	var i = scientists
 	for item in researchs:
 		item.scientistsCount = min(i,item.scientistsCount)
 		i -= item.scientistsCount
+
+func sellScientists(value):
+	var v = min(value,scientists)
+	scientists -= v
+	syncronizeScientistsOnResearch()
 	peons += v
 	money += floor(v * getSellScientistCost())
 
@@ -78,10 +88,7 @@ func feedScientists():
 		# NO MORE FOOD
 		pass
 	scientists = val
-	var i = scientists
-	for item in researchs:
-		item.scientistsCount = min(i,item.scientistsCount)
-		i -= item.scientistsCount
+	syncronizeScientistsOnResearch()
 	food -= floor(getScientistFeedValue()*val)
 
 func growFood(value):
@@ -117,3 +124,21 @@ func updateLabel():
 		if (size == 0):
 			label.hide()
 		label.set_pos(center-Vector2(150,0))
+
+func saveInFile(file):
+	var tempDict = inst2dict(self)
+	file.store_line("name:"+name)
+	for item in tempDict:
+		if (typeof(tempDict[item]) == TYPE_INT):
+			file.store_line(item+":"+str(tempDict[item]))
+	for item in researchs:
+		item.saveInFile(file)
+	file.store_line("end")
+
+func readFromFile(file):
+	var curString = file.get_line()
+	var mas
+	while (curString != "research" && curString != "end"):
+		mas = curString.split(":")
+		self[mas[0]] = mas[1]
+		curString = file.get_line()

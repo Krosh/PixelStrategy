@@ -60,8 +60,9 @@ func selectCountry(idCountry):
 	activeCountry = idCountry
 	map.get_material().set_shader_param("myColor",map.colors[idCountry])
 	#   RECALC VISION
-	map.updateVision(idCountry)
 	map.updateMap()
+	map.updateVision(idCountry)
+	get_node("Sprite").set_texture(map.visionTexture)
 	updateGui()
 
 
@@ -200,3 +201,17 @@ func _on_scientistsCount_value_changed( value, arg ):
 		return
 	map.countries[activeCountry].researchs[arg-1].scientistsCount = value
 	updateScientistsGui()
+
+
+func _on_saveButton_pressed():
+	map.saveGame("save")
+
+
+func _on_loadButton_pressed():
+	map = get_node("map")
+	map.loadGame("save")
+	for item in map.countries:
+		item.startGame()
+	activeCountry = 0
+	updateGui()
+	set_process(true)

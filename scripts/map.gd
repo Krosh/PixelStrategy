@@ -6,8 +6,8 @@ var map = []
 var neighbours = null
 var borders = []
 var countries = []
-var width = 400
-var height = 400
+var width = 200
+var height = 200
 
 var BorderColor = Color(0,1,0)
 
@@ -22,6 +22,79 @@ var visionTexture
 
 var colorCount = 20
 var numStartSwap = 20
+
+func initMap():
+	randomize()
+	colors = []
+	borders = []
+	countries = []
+	map = []
+	for i in range(colorCount):
+		colors.append(Color(1,0.2+i*0.7/colorCount,0))
+		borders.append([])
+		countries.append(CountryClass.new())
+	self.get_material().set_shader_param("myColor",colors[0])
+	
+
+func saveGame(saveName):
+	image.save_png("res://saves/"+saveName+"_map.png")
+	var file = File.new()
+	file.open("res://saves/"+saveName+"_save.sv",file.WRITE)
+	# header and main information
+	file.store_8(colorCount)
+	# every country
+	for item in countries:
+		item.saveInFile(file)
+	file.close()
+
+func loadGame(saveName):
+	initMap()
+	var maxLength = (width*height)*(width*height)
+	imageTexture = ImageTexture.new()
+#	imageTexture.set_flags(0)
+#	imageTexture.create(256,256,0)
+#	imageTexture.set_size_override(Vector2(256,256))
+	imageTexture.set_flags(0)
+	imageTexture.load("res://saves/"+saveName+"_map.png")
+	imageTexture.set_flags(0)
+	#imageTexture = get_texture()
+	image = imageTexture.get_data()
+	
+	var file = File.new()
+	file.open("res://saves/"+saveName+"_save.sv",file.READ)
+	# header and main information
+	file.get_8(colorCount)
+	# every country
+	for item in countries:
+		item.readFromFile(file)
+	file.close()
+
+	visionTexture = ImageTexture.new()
+	visionTexture.set_lossy_storage_quality(1)
+	visionTexture.load("res://visionTexture.png")
+	visionImage = visionTexture.get_data()
+	
+	var curPos
+	var curLength = 0
+	var bestLength = maxLength
+	var bestColor = -1
+	for i in range(width):
+		if (i % 50 == 0):
+			print(i)
+		map.append([])
+		for j in range(height):
+			bestColor = round((image.get_pixel(i,j).g-0.2)/0.7*colorCount)
+			image.put_pixel(i,j,colors[bestColor])
+			map[i].append(bestColor)
+			countries[bestColor].size += 1
+#			sizes[bestColor] += 1
+#	for n in range(colors.size()):
+#		image.put_pixel(points[n].x,points[n].y,Color(0,0,0))
+	print("calc neighbours")
+	calcNeighbours()
+	startCountryNames()
+	updateMap()
+
 
 func startSwap():
 	for i in range(colorCount):
@@ -180,6 +253,18 @@ func updateMap():
 	self.set_texture(imageTexture)
 
 func updateVision(activeCountry):
+	for i in range(colorCount):
+		if (neighbours[i][activeCountry]>0):
+			visionImage.put_pixel(i*3,0,Color(1,1,1,1))
+			visionImage.put_pixel(i*3+1,0,Color(1,1,1,1))
+			visionImage.put_pixel(i*3+2,0,Color(1,1,1,1))
+		else:
+			visionImage.put_pixel(i*3,0,Color(0,0,0,1))
+			visionImage.put_pixel(i*3+1,0,Color(0,0,0,1))
+			visionImage.put_pixel(i*3+2,0,Color(0,0,0,1))
+	visionTexture.set_data(visionImage)
+	#set_texture(visionTexture)
+	get_material().set_shader_param("visionTexture",visionTexture)
 	return
 	var color
 	for i in range(0,width):
@@ -240,7 +325,7 @@ func calcNeighbours():
 				image.put_pixel(i,j,color)
 				var color = colors[v1]
 				color.r = 0
-				image.put_pixel(i-1,j,color)
+				image.put_pixel(i,j-1,color)
 	#		if (map[i][j+1] != map[i][j]):
 	#			var v1 = map[i][j+1]
 	#			var v2 = map[i][j]
@@ -249,31 +334,24 @@ func calcNeighbours():
 	
 
 func start():
-	randomize()
-	colors = []
-	borders = []
-	countries = []
-	map = []
-	for i in range(colorCount):
-		colors.append(Color(1,0.2+i*0.7/colorCount,0))
-		borders.append([])
-		countries.append(CountryClass.new())
-	self.get_material().set_shader_param("myColor",colors[0])
+	initMap()
 	var maxLength = (width*height)*(width*height)
 	imageTexture = ImageTexture.new()
 #	imageTexture.set_flags(0)
 #	imageTexture.create(256,256,0)
 #	imageTexture.set_size_override(Vector2(256,256))
-	imageTexture.set_lossy_storage_quality(1)
+	imageTexture.set_flags(0)
 	imageTexture.load("res://map.png")
+	imageTexture.set_flags(0)
 	#imageTexture = get_texture()
 	image = imageTexture.get_data()
-#	visionTexture = ImageTexture.new()
-#	visionTexture.set_lossy_storage_quality(1)
-#	visionTexture.load("res://visionTexture.png")
-#	visionImage = visionTexture.get_data()
+	visionTexture = ImageTexture.new()
+	visionTexture.set_lossy_storage_quality(1)
+	visionTexture.set_flags(0)
+	visionTexture.load("res://visionTexture.png")
+	visionTexture.set_flags(0)
+	visionImage = visionTexture.get_data()
 
-	print(image.get_width())
 	for i in range(colors.size()):
 		var x = randi() % width
 		var y = randi() % height
@@ -307,7 +385,7 @@ func start():
 	print("calc neighbours")
 	calcNeighbours()
 	print("start swap")
-	startSwap()
+#	startSwap()
 	startCountryNames()
 	updateMap()
 
