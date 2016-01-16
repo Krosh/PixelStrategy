@@ -17,9 +17,6 @@ var CountryClass = preload("res://scripts/country.gd")
 var imageTexture
 var image
 
-var visionImage
-var visionTexture
-
 var colorCount = 20
 var numStartSwap = 20
 
@@ -70,10 +67,6 @@ func loadGame(saveName):
 	file.close()
 	for item in countries:
 		print(item)
-	visionTexture = ImageTexture.new()
-	visionTexture.set_lossy_storage_quality(1)
-	visionTexture.load("res://visionTexture.png")
-	visionImage = visionTexture.get_data()
 	
 	var curPos
 	var curLength = 0
@@ -143,25 +136,33 @@ func expanseTerritory(attacker,enemy):
 #		print(item)
 	#print(borders[attacker].size())
 	var i = 0
-	while (target == null):
+	#var a = Vector2Array()
+	while target == null:
+#	№for n in range(borders[attacker].size()):
 		i += 1
 		if (i > 1000):
 			print("limit of tries")
 			return
 		var n = randi() % borders[attacker].size()
 		pos = borders[attacker][n]
+#		pos = borders[attacker][n]
 	#	print(pos)
 		if (pos.x > 0 && map[pos.x-1][pos.y] == enemy):
 			target = Vector2(pos.x-1,pos.y)
+#			a.push_back(Vector2(pos.x-1,pos.y))
 		if (pos.x < width-1 && map[pos.x+1][pos.y] == enemy):
 			target = Vector2(pos.x+1,pos.y)
+#			a.push_back(Vector2(pos.x+1,pos.y))
 		if (pos.y > 0 && map[pos.x][pos.y-1] == enemy):
 			target = Vector2(pos.x,pos.y-1)
+#			a.push_back(Vector2(pos.x,pos.y-1))
 		if (pos.y < height-1 && map[pos.x][pos.y+1] == enemy):
 			target = Vector2(pos.x,pos.y+1)
+#			a.push_back(Vector2(pos.x,pos.y+1))
 	#print(target)
 	#   RECALC NEIGHBOUR COUNT
-
+	
+	#var target = a.get(randi() % a.size())
 	var baseCountry = map[target.x][target.y]
 	var anotherCountry
 	
@@ -176,6 +177,8 @@ func expanseTerritory(attacker,enemy):
 				if (anotherCountry != baseCountry):
 					neighbours[baseCountry][anotherCountry] -= 1
 					neighbours[anotherCountry][baseCountry] -= 1
+					if (neighbours[baseCountry][anotherCountry] == 0):
+						needRecalcVisionFlag = true
 				else:
 					borders[baseCountry].append(Vector2(x,y))
 					var color = colors[baseCountry]
@@ -241,49 +244,26 @@ func expanseTerritory(attacker,enemy):
 	countries[enemy].size -= 1
 	if (countries[enemy].size > 0):
 		countries[enemy].center /= countries[enemy].size
-#	image.put_pixel(target.x,target.y,colors[attacker])
-	#for i in range(width):
-	#	for j in range(height):
-	#		image.put_pixel(i,j,colors[map[i][j]])
-	#for item in borders[attacker]:
-	#	image.put_pixel(item.x,item.y,Color(1,0,0))
 	return needRecalcVisionFlag
 
 func updateMap():
 	imageTexture.set_data(image)
 	self.set_texture(imageTexture)
 
-func updateVision(activeCountry):
-	for i in range(colorCount):
-		if (neighbours[i][activeCountry]>0):
-			visionImage.put_pixel(i*3,0,Color(1,1,1,1))
-			visionImage.put_pixel(i*3+1,0,Color(1,1,1,1))
-			visionImage.put_pixel(i*3+2,0,Color(1,1,1,1))
-		else:
-			visionImage.put_pixel(i*3,0,Color(0,0,0,1))
-			visionImage.put_pixel(i*3+1,0,Color(0,0,0,1))
-			visionImage.put_pixel(i*3+2,0,Color(0,0,0,1))
-	visionTexture.set_data(visionImage)
-	#set_texture(visionTexture)
-	get_material().set_shader_param("visionTexture",visionTexture)
-	return
-	var color
+func fullUpdateVision(activeCountry):
 	for i in range(0,width):
 		for j in range(0,height):
-			if (activeCountry == map[i][j] || neighbours[map[i][j]][activeCountry]>0):
-				color = image.get_pixel(i,j)
-				color.b = 1;
-				image.put_pixel(i,j,color)
+			var color = image.get_pixel(i,j)
+			if (neighbours[activeCountry][map[i][j]]>0 || map[i][j] == activeCountry):
+				color.b = 0
 			else:
-				color = image.get_pixel(i,j)
-				color.b = 0;
-				image.put_pixel(i,j,color)
+				color.b = 1
+			image.put_pixel(i,j,color)
 	for i in range(colorCount):
 		if (activeCountry == i || neighbours[i][activeCountry]>0):
 			countries[i].label.show()
 		else:
 			countries[i].label.hide()
-	
 
 func calcNeighbours():
 	neighbours = []
@@ -341,17 +321,11 @@ func start():
 #	imageTexture.set_flags(0)
 #	imageTexture.create(256,256,0)
 #	imageTexture.set_size_override(Vector2(256,256))
-	imageTexture.set_flags(0)
+	#imageTexture.set_flags(0)
 	imageTexture.load("res://map.png")
-	imageTexture.set_flags(0)
+#	imageTexture.set_flags(0)
 	#imageTexture = get_texture()
 	image = imageTexture.get_data()
-	visionTexture = ImageTexture.new()
-	visionTexture.set_lossy_storage_quality(1)
-	visionTexture.set_flags(0)
-	visionTexture.load("res://visionTexture.png")
-	visionTexture.set_flags(0)
-	visionImage = visionTexture.get_data()
 
 	for i in range(colors.size()):
 		var x = randi() % width
