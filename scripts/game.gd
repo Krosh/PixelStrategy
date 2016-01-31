@@ -2,8 +2,8 @@ extends Node2D
 
 
 var map
-var width = 200
-var height = 200
+var width = 400
+var height = 400
 var activeCountry
 
 var rightMousePressed = false

@@ -6,8 +6,8 @@ var map = []
 var neighbours = null
 var borders = []
 var countries = []
-var width = 200
-var height = 200
+var width = 400
+var height = 400
 
 var BorderColor = Color(0,1,0)
 
@@ -18,7 +18,7 @@ var imageTexture
 var image
 
 var colorCount = 20
-var numStartSwap = 10
+var numStartSwap = 20
 
 func startSwap():
 	for i in range(colorCount):
@@ -45,9 +45,9 @@ func expanseTerritory(attacker,enemy):
 	#print(borders[attacker].size())
 	var i = 0
 	while (target == null):
-		i += 1
-		if (i > 1000):
-			return
+	#	i += 1
+	#	if (i > 1000):
+	#		return
 		var n = randi() % borders[attacker].size()
 		pos = borders[attacker][n]
 	#	print(pos)
