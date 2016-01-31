@@ -2,8 +2,8 @@ extends Node2D
 
 
 var map
-var width = 400
-var height = 400
+var width = 200
+var height = 200
 var activeCountry
 
 var rightMousePressed = false
@@ -27,8 +27,15 @@ func _ready():
 	activeCountry = 0
 	updateGui()
 
+
+func selectCountry(idCountry):
+	activeCountry = idCountry
+	map.get_material().set_shader_param("myColor",map.colors[idCountry])
+	updateGui()
+
+
 func _process(delta):
-	var mousePos = map.get_local_mouse_pos()+Vector2(map.width/2,map.height/2)
+	var mousePos = map.get_local_mouse_pos()
 	if (Input.is_mouse_button_pressed(1)):
 		leftMousePressed = true
 	else:
@@ -49,8 +56,7 @@ func _process(delta):
 	else:
 		if (rightMousePressed):
 			#OnRightClick
-			activeCountry =  map.map[mousePos.x][mousePos.y]
-			updateGui()
+			selectCountry(map.map[mousePos.x][mousePos.y])
 		rightMousePressed = false
 
 func nextTurn():

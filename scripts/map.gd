@@ -6,19 +6,29 @@ var map = []
 var neighbours = null
 var borders = []
 var countries = []
-var width = 400
-var height = 400
+var width = 200
+var height = 200
 
-var BorderColor = Color(0,0,0)
+var BorderColor = Color(0,1,0)
 
 var CountryClass = preload("res://scripts/country.gd")
 
-var numStartSwap = 10
 
 var imageTexture
 var image
 
 var colorCount = 20
+var numStartSwap = 10
+
+func startSwap():
+	for i in range(colorCount):
+		print(i)
+		for j in range(i,colorCount):
+			for n in range(numStartSwap):
+				if (neighbours[i][j]>0):
+					expanseTerritory(i,j)
+					expanseTerritory(j,i)
+				
 
 func expanseTerritory(attacker,enemy):
 	if (countries[enemy].size == 0):
@@ -35,9 +45,9 @@ func expanseTerritory(attacker,enemy):
 	#print(borders[attacker].size())
 	var i = 0
 	while (target == null):
-#		i += 1
-#		if (i > 1000):
-#			return
+		i += 1
+		if (i > 1000):
+			return
 		var n = randi() % borders[attacker].size()
 		pos = borders[attacker][n]
 	#	print(pos)
@@ -68,7 +78,9 @@ func expanseTerritory(attacker,enemy):
 					neighbours[anotherCountry][baseCountry] -= 1
 				else:
 					borders[baseCountry].append(Vector2(x,y))
-					image.put_pixel(x,y,BorderColor)
+					var color = colors[baseCountry]
+					color.r = 0
+					image.put_pixel(x,y,color)
 
 #					for i2 in range(-1,2):
 #						for j2 in range(-1,2):
@@ -149,8 +161,12 @@ func calcNeighbours():
 				neighbours[v2][v1] += 1
 				borders[v1].append(Vector2(i-1,j))
 				borders[v2].append(Vector2(i,j))
-				image.put_pixel(i,j,BorderColor)
-				image.put_pixel(i-1,j,BorderColor)
+				var color = colors[v2]
+				color.r = 0
+				image.put_pixel(i,j,color)
+				var color = colors[v1]
+				color.r = 0
+				image.put_pixel(i-1,j,color)
 			#		if (map[i+1][j] != map[i][j]):
 	#			var v1 = map[i+1][j]
 	#			var v2 = map[i][j]
@@ -163,8 +179,12 @@ func calcNeighbours():
 				neighbours[v2][v1] += 1
 				borders[v2].append(Vector2(i,j))
 				borders[v1].append(Vector2(i,j-1))
-				image.put_pixel(i,j,BorderColor)
-				image.put_pixel(i,j-1,BorderColor)
+				var color = colors[v2]
+				color.r = 0
+				image.put_pixel(i,j,color)
+				var color = colors[v1]
+				color.r = 0
+				image.put_pixel(i-1,j,color)
 	#		if (map[i][j+1] != map[i][j]):
 	#			var v1 = map[i][j+1]
 	#			var v2 = map[i][j]
@@ -179,7 +199,7 @@ func start():
 	countries = []
 	map = []
 	for i in range(colorCount):
-		colors.append(Color(1,1,1))
+		colors.append(Color(1,0.2+i*0.7/colorCount,0))
 		borders.append([])
 		countries.append(CountryClass.new())
 	self.get_material().set_shader_param("myColor",colors[0])
@@ -188,9 +208,11 @@ func start():
 #	imageTexture.set_flags(0)
 #	imageTexture.create(256,256,0)
 #	imageTexture.set_size_override(Vector2(256,256))
+	imageTexture.set_lossy_storage_quality(1)
 	imageTexture.load("res://map.png")
 	#imageTexture = get_texture()
 	image = imageTexture.get_data()
+
 	print(image.get_width())
 	for i in range(colors.size()):
 		var x = randi() % width
@@ -220,7 +242,8 @@ func start():
 #		image.put_pixel(points[n].x,points[n].y,Color(0,0,0))
 	print("calc neighbours")
 	calcNeighbours()
-#	startSwapTerritory()a
+	print("start swap")
+	startSwap()
 	updateMap()
 
 
