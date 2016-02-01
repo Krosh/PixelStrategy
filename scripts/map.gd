@@ -45,9 +45,10 @@ func expanseTerritory(attacker,enemy):
 	#print(borders[attacker].size())
 	var i = 0
 	while (target == null):
-	#	i += 1
-	#	if (i > 1000):
-	#		return
+		i += 1
+		if (i > 1000):
+			print("limit of tries")
+			return
 		var n = randi() % borders[attacker].size()
 		pos = borders[attacker][n]
 	#	print(pos)

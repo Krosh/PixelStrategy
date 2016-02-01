@@ -7,6 +7,9 @@ var money = 0
 var food = 0
 var grow = 0
 var size = 0
+# DRAW VARS
+var center = Vector2(0,0)
+var name = "COUNTRY"
 
 func getAgroCoef():
 	return 2.0
@@ -14,13 +17,27 @@ func getAgroCoef():
 func getFoodCost():
 	return 3.0
 
+func getBuyFoodCost():
+	return getFoodCost() * 2
+
 func getMaxGrow():
-	return ceil(min(food,size/10))
+	return min(food,ceil(size/10)-grow)
+
+func getMaxFoodBuyCount():
+	return floor(money/getBuyFoodCost())
+
 
 func sellFood(value):
 	var v = min(value,food)
 	food -= v
-	money += v * getFoodCost()
+	money += floor(v * getFoodCost())
+
+
+func buyFood(value):
+	var v = min(value,getMaxFoodBuyCount())
+	food += v
+	print(v)
+	money -= floor(v*getBuyFoodCost())
 
 func growFood(value):
 	var v = min(value,food)
